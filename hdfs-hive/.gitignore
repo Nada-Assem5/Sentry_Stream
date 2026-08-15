@@ -1,0 +1,12 @@
+# Dataset files - never commit these (too large for GitHub)
+*.csv
+*.xlsx
+*.xls
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE files
+.vscode/
+*.swp

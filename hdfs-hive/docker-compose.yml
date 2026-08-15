@@ -1,0 +1,69 @@
+﻿services:
+  sentry-namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: sentry-namenode
+    restart: always
+    ports:
+      - "9871:9870"
+      - "9001:9000"
+    volumes:
+      - sentry_hadoop_namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=sentrystream
+    env_file:
+      - ./hadoop.env
+
+  sentry-datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: sentry-datanode
+    restart: always
+    depends_on:
+      - sentry-namenode
+    volumes:
+      - sentry_hadoop_datanode:/hadoop/dfs/data
+    environment:
+      - SERVICE_PRECONDITION=sentry-namenode:9870
+    env_file:
+      - ./hadoop.env
+
+  sentry-hive-metastore-postgresql:
+    image: bde2020/hive-metastore-postgresql:2.3.0
+    container_name: sentry-hive-metastore-postgresql
+    restart: always
+    volumes:
+      - sentry_hive_pg:/var/lib/postgresql/data
+
+  sentry-hive-metastore:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: sentry-hive-metastore
+    restart: always
+    depends_on:
+      - sentry-hive-metastore-postgresql
+      - sentry-namenode
+      - sentry-datanode
+    env_file:
+      - ./hadoop.env
+    command: /opt/hive/bin/hive --service metastore
+    ports:
+      - "9084:9083"
+    environment:
+      SERVICE_PRECONDITION: "sentry-namenode:9870 sentry-datanode:9864 sentry-hive-metastore-postgresql:5432"
+
+  sentry-hive-server:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: sentry-hive-server
+    restart: always
+    depends_on:
+      - sentry-hive-metastore
+    env_file:
+      - ./hadoop.env
+    environment:
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://sentry-hive-metastore-postgresql/metastore"
+      SERVICE_PRECONDITION: "sentry-hive-metastore:9083"
+    ports:
+      - "10001:10000"
+
+volumes:
+  sentry_hadoop_namenode:
+  sentry_hadoop_datanode:
+  sentry_hive_pg:
