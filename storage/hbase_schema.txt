@@ -1,0 +1,112 @@
+SentryStream - HBase Schema
+===========================
+
+Table Name:
+sentrystream_predictions
+
+Column Families:
+1. cf
+2. features
+
+
+Column Family: cf
+-----------------
+cf:device_name
+cf:attack
+cf:attack_subtype
+cf:original_label
+cf:event_time
+cf:prediction
+
+
+Column Family: features
+-----------------------
+features:MI_dir_L0_1_weight
+features:MI_dir_L0_1_mean
+features:MI_dir_L0_1_variance
+features:H_L0_1_weight
+features:H_L0_1_mean
+features:H_L0_1_variance
+features:HH_L0_1_weight
+features:HH_L0_1_mean
+features:HH_L0_1_std
+features:HH_L0_1_magnitude
+features:HH_L0_1_radius
+features:HH_L0_1_covariance
+features:HH_L0_1_pcc
+features:HH_jit_L0_1_weight
+features:HH_jit_L0_1_mean
+features:HH_jit_L0_1_variance
+features:HpHp_L0_1_weight
+features:HpHp_L0_1_mean
+features:HpHp_L0_1_std
+features:HpHp_L0_1_magnitude
+features:HpHp_L0_1_radius
+features:HpHp_L0_1_covariance
+features:HpHp_L0_1_pcc
+
+
+Row Key Design:
+---------------
+<device_name>#<event_timestamp>#<unique_id>
+
+Example:
+device_01#2026-08-19T00:45:21#000001
+
+
+Data Types:
+-----------
+device_name       -> STRING
+attack            -> STRING
+attack_subtype    -> STRING
+original_label    -> INT
+event_time        -> TIMESTAMP
+prediction        -> INT
+features          -> DOUBLE
+
+
+Label Convention:
+-----------------
+0 = Attack
+1 = Normal
+
+
+Prediction Convention:
+----------------------
+0 = Attack
+1 = Normal
+
+
+Purpose:
+--------
+HBase is used as the fast NoSQL storage layer for real-time
+IoT prediction results.
+
+Hive/HDFS:
+- Historical dataset
+- Batch analytics
+- Large-scale storage
+
+HBase:
+- Fast lookup
+- Real-time prediction access
+- Device-based queries
+- Recent event retrieval
+
+
+Example Record:
+---------------
+Row Key:
+device_01#2026-08-19T00:45:21#000001
+
+cf:device_name       = device_01
+cf:attack            = mirai
+cf:attack_subtype    = tcp
+cf:original_label    = 0
+cf:event_time        = 2026-08-19 00:45:21
+cf:prediction        = 0
+
+features:MI_dir_L0_1_weight = 0.45
+features:MI_dir_L0_1_mean = 0.31
+features:MI_dir_L0_1_variance = 0.12
+...
