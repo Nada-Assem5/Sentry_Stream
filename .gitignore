@@ -1,0 +1,24 @@
+# Dataset (too large for Git)
+data/*.csv
+data/*.CSV
+
+# Trained models (large binary files)
+processing/models/*
+!processing/models/.gitkeep
+
+# Docker volumes / runtime data
+docker/volumes/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
