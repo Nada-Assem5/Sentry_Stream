@@ -9,7 +9,7 @@
     volumes:
       - sentry_hadoop_namenode:/hadoop/dfs/name
     environment:
-      - CLUSTER_NAME=sentrystream
+      CLUSTER_NAME: sentrystream
     env_file:
       - ./hadoop.env
 
@@ -22,7 +22,7 @@
     volumes:
       - sentry_hadoop_datanode:/hadoop/dfs/data
     environment:
-      - SERVICE_PRECONDITION=sentry-namenode:9870
+      SERVICE_PRECONDITION: "sentry-namenode:9870"
     env_file:
       - ./hadoop.env
 
@@ -58,12 +58,41 @@
     env_file:
       - ./hadoop.env
     environment:
-      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://sentry-hive-metastore-postgresql/metastore"
       SERVICE_PRECONDITION: "sentry-hive-metastore:9083"
     ports:
       - "10001:10000"
+      - "10002:10002"
+
+  sentry-hbase:
+    image: bde2020/hbase-standalone:1.0.0-hbase1.2.6
+    container_name: sentry-hbase
+    restart: always
+    depends_on:
+      - sentry-namenode
+      - sentry-datanode
+    environment:
+      HBASE_CONF_hbase_rootdir: "hdfs://sentry-namenode:9000/hbase"
+      SERVICE_PRECONDITION: "sentry-namenode:9870 sentry-datanode:9864"
+    ports:
+      - "16010:16010"
+      - "9090:9090"
+
+  sentry-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: sentry-elasticsearch
+    restart: always
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - sentry_es_data:/usr/share/elasticsearch/data
 
 volumes:
   sentry_hadoop_namenode:
   sentry_hadoop_datanode:
   sentry_hive_pg:
+  sentry_hbase_data:
+  sentry_es_data:
