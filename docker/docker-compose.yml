@@ -77,12 +77,33 @@ services:
     image: apache/spark:3.5.1
     container_name: sentrystream-spark-worker
     profiles: [ "processing", "full" ]
+    # Executors write the Parquet output; the driver (spark-preprocessing) runs
+    # as root, so match it here or the two disagree over /output's ownership.
+    user: root
     depends_on:
       - spark-master
     command: >
       /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077 --cores 2 --memory 1g
     ports:
-      - "8082:8081" # Spark worker web UI -> http://localhost:8082
+      - "8082:8081"
+    volumes:
+      - ../data:/data
+      - ../processing/output:/output
+    networks:
+      - sentrystream-net
+    mem_limit: 1g
+
+  spark-preprocessing:
+    build:
+      context: ../processing
+    container_name: sentrystream-preprocessing
+    profiles: [ "processing", "full" ]
+    depends_on:
+      - spark-master
+      - spark-worker
+    volumes:
+      - ../data:/data
+      - ../processing/output:/output
     networks:
       - sentrystream-net
     mem_limit: 1g
