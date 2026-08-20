@@ -111,7 +111,7 @@ services:
     build:
       context: ../processing
     container_name: sentrystream-classification
-    profiles: [ "processing", "full" ]
+    profiles: [ "full" ]
     command: [ "python", "-u", "streaming_classification.py" ]
     depends_on:
       - spark-master
@@ -215,7 +215,7 @@ services:
     build:
       context: ../visualization/api
     container_name: sentrystream-api
-    profiles: [ "search", "full" ]
+    profiles: [ "full" ]
     depends_on:
       - hbase
       - elasticsearch
