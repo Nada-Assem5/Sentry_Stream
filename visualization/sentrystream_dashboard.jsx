@@ -86,10 +86,10 @@ export default function Dashboard() {
   const [devices, setDevices] = useState(INITIAL_DEVICES);
   const [stream, setStream] = useState([]);
   const [alerts, setAlerts] = useState([]);
-  
+
   // Seed chartData with initial historical timeline
   const [chartData, setChartData] = useState(() => generateInitialChartData(20));
-  
+
   // Initial total counters calculated from initial seed data
   const initialTotals = chartData.reduce(
     (acc, cur) => ({
@@ -99,7 +99,7 @@ export default function Dashboard() {
     }),
     { total: 0, normal: 0, attack: 0 }
   );
-  
+
   const [totals, setTotals] = useState(initialTotals);
   const [soundOn, setSoundOn] = useState(false);
 
@@ -164,7 +164,7 @@ export default function Dashboard() {
     const isAttack = Math.random() < 0.18;
     idRef.current += 1;
     const attackType = isAttack ? pick(ATTACK_TYPES) : null;
-    
+
     // Simulate flow volume packets per event
     const flowVolume = isAttack ? Math.floor(6 + Math.random() * 10) : Math.floor(5 + Math.random() * 8);
 
@@ -208,7 +208,7 @@ export default function Dashboard() {
     const stream = setInterval(() => {
       if (!isPausedRef.current) pushRecord();
     }, 900);
-    
+
     const chartTick = setInterval(() => {
       if (!isPausedRef.current) {
         setChartData((prev) => {
@@ -271,6 +271,7 @@ export default function Dashboard() {
     return () => { clearInterval(clock); clearInterval(stream); clearInterval(chartTick); };
   }, [pushRecord]);
 
+
   const toggleSeries = (key) => {
     setVisibleSeries((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -280,7 +281,7 @@ export default function Dashboard() {
     const keys = breakdownMode
       ? ["t", "normal", ...ATTACK_TYPES]
       : ["t", "normal", "attack"];
-    
+
     const header = breakdownMode
       ? "Time,Safe Traffic,DDoS Flood,Port Scan,Botnet Activity,Unauthorized Access,Data Interception"
       : "Time,Safe Traffic,Attack Traffic";
@@ -301,7 +302,7 @@ export default function Dashboard() {
 
   const attackedDevices = devices.filter((d) => d.status === "attack");
   const detectionRate = totals.total ? ((totals.attack / totals.total) * 100).toFixed(1) : "0.0";
-  
+
   // Ensure displayed chart data is valid, non-null, and sorted
   const displayedChartData = chartData
     .filter((d) => d && typeof d.normal === "number" && typeof d.attack === "number")
@@ -556,11 +557,11 @@ export default function Dashboard() {
                         allowDecimals={false}
                       />
                       <Tooltip content={renderTooltipContent} />
-                      
+
                       {visibleSeries.normal && (
                         <Area type="monotone" dataKey="normal" name="Safe Traffic" stroke="#2DD4BF" strokeWidth={2.5} fill="url(#normalFill)" />
                       )}
-                      
+
                       {!breakdownMode ? (
                         visibleSeries.attack && (
                           <Area type="monotone" dataKey="attack" name="Attack Traffic" stroke="#FF5D5D" strokeWidth={2.5} fill="url(#attackFill)" />
@@ -593,7 +594,7 @@ export default function Dashboard() {
                         allowDecimals={false}
                       />
                       <Tooltip content={renderTooltipContent} />
-                      
+
                       {visibleSeries.normal && (
                         <Line type="monotone" dataKey="normal" name="Safe Traffic" stroke="#2DD4BF" strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
                       )}
@@ -630,7 +631,7 @@ export default function Dashboard() {
                         allowDecimals={false}
                       />
                       <Tooltip content={renderTooltipContent} />
-                      
+
                       {visibleSeries.normal && (
                         <Bar dataKey="normal" name="Safe Traffic" fill="#2DD4BF" radius={[3, 3, 0, 0]} />
                       )}

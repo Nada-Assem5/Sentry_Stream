@@ -11,7 +11,7 @@ volumes:
 services:
 
   # INGESTION — Kafka + Zookeeper (owned by: Ingestion member)
- 
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
     container_name: sentrystream-zookeeper
@@ -47,18 +47,17 @@ services:
   producer:
     image: python:3.11-slim
     container_name: sentrystream-producer
-    profiles: ["ingestion", "full"]
+    profiles: [ "ingestion", "full" ]
     depends_on:
       - kafka
     working_dir: /app
     volumes:
       - ../ingestion:/app
       - ../data:/data
-    command: ["bash", "-c", "pip install kafka-python && python -u producer_realtime.py"]
+    command: [ "bash", "-c", "pip install kafka-python && python -u producer_realtime.py" ]
     networks:
       - sentrystream-net
 
- 
   # PROCESSING — Spark standalone (owned by: Processing/ML member)
 
   spark-master:
@@ -101,6 +100,25 @@ services:
     depends_on:
       - spark-master
       - spark-worker
+    volumes:
+      - ../data:/data
+      - ../processing/output:/output
+    networks:
+      - sentrystream-net
+    mem_limit: 1g
+
+  spark-classification:
+    build:
+      context: ../processing
+    container_name: sentrystream-classification
+    profiles: [ "processing", "full" ]
+    command: [ "python", "-u", "streaming_classification.py" ]
+    depends_on:
+      - spark-master
+      - spark-worker
+      - hbase
+      - elasticsearch
+      - namenode
     volumes:
       - ../data:/data
       - ../processing/output:/output
@@ -173,9 +191,8 @@ services:
       - sentrystream-net
     mem_limit: 1g
 
-
   # SEARCH — Elasticsearch (owned by: Visualization/Integration member)
- 
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
     container_name: sentrystream-elasticsearch
@@ -191,3 +208,19 @@ services:
     networks:
       - sentrystream-net
     mem_limit: 1g
+
+  # VISUALIZATION — API + Dashboard (owned by: Visualization/Integration member)
+
+  api:
+    build:
+      context: ../visualization/api
+    container_name: sentrystream-api
+    profiles: [ "search", "full" ]
+    depends_on:
+      - hbase
+      - elasticsearch
+    ports:
+      - "8000:8000" # -> http://localhost:8000
+    networks:
+      - sentrystream-net
+    mem_limit: 512m
