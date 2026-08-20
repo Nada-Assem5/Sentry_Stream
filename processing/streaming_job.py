@@ -29,16 +29,16 @@ from elasticsearch import Elasticsearch, helpers
 KAFKA_BOOTSTRAP = "kafka:29092"
 KAFKA_TOPIC = "network-traffic"
 
-STATS_PATH = "/output/preprocessing_stats.json"
-MODEL_PATH = "/output/model/attack_classifier.pkl"      # sklearn-style model, has .predict_proba
-LABEL_MAP_PATH = "/output/model/label_map.json"          # {"0": "Normal", "1": "Port Scan", ...}
+STATS_PATH = "/models/preprocessing_stats.json"
+MODEL_PATH = "/models/random_forest.joblib"      # sklearn-style model, has .predict_proba
+LABEL_MAP_PATH = "/models/label_map.json"          # {"0": "Normal", "1": "Port Scan", ...}
 
 HDFS_ARCHIVE_PATH = "hdfs://namenode:9000/user/sentrystream/classified_events"
 CHECKPOINT_PATH = "/output/checkpoints/classification"
 
 HBASE_HOST = "hbase"
 HBASE_PORT = 9090
-HBASE_STATUS_TABLE = "device_status"
+HBASE_STATUS_TABLE = "device_status"        
 HBASE_ALERTS_TABLE = "device_alerts"
 
 ES_HOST = "http://elasticsearch:9200"

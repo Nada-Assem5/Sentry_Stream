@@ -130,7 +130,7 @@ CREATE EXTERNAL TABLE iot_predictions_final (
     device_name       STRING,
     pred_label        INT,
     pred_confidence   DOUBLE,
-    attack_type       STRING
+    attack       STRING
 )
 STORED AS PARQUET
 LOCATION 'hdfs://namenode:9000/user/sentrystream/classified_events';

@@ -4,7 +4,7 @@ USER root
 
 WORKDIR /app
 
-COPY preprocess_batch.py /app/preprocess_batch.py
-COPY preprocess_stream.py /app/preprocess_stream.py
+COPY streaming_job.py .
+COPY models/ ./models/
 
-CMD ["/opt/spark/bin/spark-submit", "--master", "spark://spark-master:7077", "/app/preprocess_batch.py"]
+CMD ["/opt/spark/bin/spark-submit", "--master", "spark://spark-master:7077", "/app/streaming_job.py"]
